@@ -9,6 +9,7 @@ List<string> history = new List<string>();
 string difficulty = "easy";
 const int EASY_RANGE = 10;
 const int DIFFICULT_RANGE = 100;
+const int QUESTIONS_PER_GAME = 5;
 
 // Used to store operations for the random operator option
 string[] operations = { "+", "-", "*", "/" };
@@ -23,8 +24,8 @@ do
         Console.Write("Invalid input. Please enter a number between 1 and 8: ");
     }
 
-    int num1 = numberGenerator.Next(0, difficulty == "easy" ? EASY_RANGE : DIFFICULT_RANGE);
-    int num2 = numberGenerator.Next(0, difficulty == "easy" ? EASY_RANGE : DIFFICULT_RANGE);
+    int num1;
+    int num2;
     int correctAnswer;
     string operation = "";
 
@@ -62,35 +63,42 @@ do
             break;
     }
 
-    // Ensure that division problems are valid (no division by zero and integer results)
-    if (operation == "/")
-    {
-        num2 = numberGenerator.Next(1, difficulty == "easy" ? EASY_RANGE : DIFFICULT_RANGE);
-        num1 = num2 * numberGenerator.Next(0, 10);
-    }
-
-    // Calculate the correct answer and check this against the user's guess
+    // Do calculations only if the user selected a calculation operation (1-5)
     if (menuChoice >= 1 && menuChoice <= 5)
-    {
-        correctAnswer = Calculate(num1, num2, operation);
-        Console.Write($"\n{num1} {operation} {num2} = ");
-        int userAnswer;
-        while (!int.TryParse(Console.ReadLine(), out userAnswer))
+    { 
+        for (int i = 1; i <= QUESTIONS_PER_GAME; i++)
         {
-            Console.Write("Invalid input. Please enter a valid integer: ");
+            num1 = numberGenerator.Next(0, difficulty == "easy" ? EASY_RANGE : DIFFICULT_RANGE);
+            num2 = numberGenerator.Next(0, difficulty == "easy" ? EASY_RANGE : DIFFICULT_RANGE);
+
+            // Ensure that division problems are valid (no division by zero and integer results)
+            if (operation == "/")
+            {
+                num2 = numberGenerator.Next(1, difficulty == "easy" ? EASY_RANGE : DIFFICULT_RANGE);
+                num1 = num2 * numberGenerator.Next(0, 10);
+            }
+
+            // Calculate the correct answer and check this against the user's guess
+            correctAnswer = Calculate(num1, num2, operation);
+            Console.Write($"\nQ{i}: {num1} {operation} {num2} = ");
+            int userAnswer;
+            while (!int.TryParse(Console.ReadLine(), out userAnswer))
+            {
+                Console.Write("Invalid input. Please enter a valid integer: ");
+            }
+            if (userAnswer == correctAnswer)
+            {
+                Console.WriteLine("Correct!");
+                totalPoints++;
+                history.Add($"{num1} {operation} {num2} = {correctAnswer} (Correct)");
+            }
+            else
+            {
+                Console.WriteLine($"Incorrect. The correct answer is {correctAnswer}.");
+                history.Add($"{num1} {operation} {num2} = {userAnswer} (Incorrect - Correct answer: {correctAnswer})");
+            }
+            Console.WriteLine($"Total points: {totalPoints}");
         }
-        if (userAnswer == correctAnswer)
-        {
-            Console.WriteLine("Correct!");
-            totalPoints++;
-            history.Add($"{num1} {operation} {num2} = {correctAnswer} (Correct)");
-        }
-        else
-        {
-            Console.WriteLine($"Incorrect. The correct answer is {correctAnswer}.");
-            history.Add($"{num1} {operation} {num2} = {userAnswer} (Incorrect - Correct answer: {correctAnswer})");
-        }
-        Console.WriteLine($"Total points: {totalPoints}");
     }
 
 } while (menuChoice != 8);
